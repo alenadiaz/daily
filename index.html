@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orlando — Daily Checklist</title>
+<style>
+  :root{
+    --bg:#12141a;
+    --panel:#1b1e27;
+    --panel2:#20242f;
+    --border:#2c303c;
+    --text:#e9eaf0;
+    --muted:#9aa0ae;
+    --accent:#7c9fff;
+    --accent2:#ff9f7c;
+    --good:#5ed9a0;
+    --bad:#ff6b6b;
+    --alena:#c98bff;
+    --orlando:#5ec8ff;
+    --hunter:#ffb84d;
+    --myles:#6fe0b0;
+    --isabella:#ff8fc7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.4;
+  }
+  header{
+    padding:20px 24px 0;
+  }
+  h1{
+    margin:0 0 4px;
+    font-size:22px;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    padding:0 24px;
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    background:none;
+    border:none;
+    color:var(--muted);
+    padding:10px 16px;
+    font-size:14px;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    font-weight:600;
+  }
+  .tab-btn.active{
+    color:var(--text);
+    border-bottom:2px solid var(--accent);
+  }
+  .tab-btn[data-tab="alena"].active{ border-bottom-color:var(--alena); }
+  .tab-btn[data-tab="orlando"].active{ border-bottom-color:var(--orlando); }
+  .tab-btn[data-tab="alena-profile"].active{ border-bottom-color:var(--alena); }
+  .tab-btn[data-tab="orlando-profile"].active{ border-bottom-color:var(--orlando); }
+  .tab-btn[data-tab="hunter-profile"].active{ border-bottom-color:var(--hunter); }
+  .tab-btn[data-tab="myles-profile"].active{ border-bottom-color:var(--myles); }
+  .tab-btn[data-tab="isabella-profile"].active{ border-bottom-color:var(--isabella); }
+  .sub-tabs{
+    padding:8px 24px;
+    border-bottom:1px solid var(--border);
+    background:var(--panel);
+  }
+  .sub-tabs .tab-btn{
+    padding:6px 14px;
+    font-size:13px;
+  }
+  .stats-scroll{
+    overflow-x:auto;
+  }
+  .stats-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .stats-table th, .stats-table td{
+    padding:6px 10px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+  }
+  .stats-table th{
+    color:var(--muted);
+    font-weight:600;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  .stats-label{
+    text-align:left !important;
+    color:var(--text);
+    font-weight:500;
+  }
+  .stats-total{
+    font-weight:700;
+    color:var(--accent);
+  }
+
+  .panel{
+    display:none;
+    padding:20px 24px 60px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  .panel.active{ display:block; }
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .toolbar label{
+    font-size:13px;
+    color:var(--muted);
+  }
+  input[type="date"], input[type="time"], input[type="number"], input[type="text"], textarea{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:14px;
+    font-family:inherit;
+  }
+  textarea{
+    width:100%;
+    resize:vertical;
+    min-height:52px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .card h3{
+    margin:0 0 10px;
+    font-size:14px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .row > div{ flex:1; min-width:140px; }
+  .field-label{
+    display:block;
+    font-size:13px;
+    margin-bottom:4px;
+    color:var(--text);
+  }
+  .inline-check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+  }
+  input[type="checkbox"]{
+    width:18px;height:18px;accent-color:var(--accent);
+  }
+  .workout-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .workout-item{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .workout-item .inline-check{ margin-bottom:8px; font-weight:600; }
+  button{
+    background:var(--accent);
+    color:#0d0e12;
+    border:none;
+    border-radius:8px;
+    padding:10px 16px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  button.secondary{
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  .generate-bar{
+    display:flex;
+    gap:10px;
+    margin:20px 0 10px;
+  }
+  #alena-output, #orlando-output{
+    width:100%;
+    min-height:220px;
+    white-space:pre-wrap;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+  .copy-note{
+    font-size:12px;
+    color:var(--good);
+    margin-left:6px;
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .copy-note.show{ opacity:1; }
+
+  /* Profile tabs */
+  .profile-header{
+    background:linear-gradient(135deg, var(--panel2), var(--panel));
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:18px 20px;
+    margin-bottom:16px;
+  }
+  .profile-header h2{ margin:0 0 4px; font-size:20px; }
+  .profile-header .birth{ color:var(--muted); font-size:13px; }
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width:700px){ .grid2{ grid-template-columns:1fr; } }
+  .kv{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:5px 0;
+    border-bottom:1px dashed var(--border);
+    font-size:13px;
+  }
+  .kv:last-child{ border-bottom:none; }
+  .kv .k{ color:var(--muted); }
+  .kv .v{ text-align:right; }
+  .pill{
+    display:inline-block;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:3px 10px;
+    font-size:12px;
+    margin:2px 4px 2px 0;
+  }
+  .note-box{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Orlando — Daily Checklist</h1>
+  <div class="subtitle">Orlando's daily check-in tracker + full HD / Astrology reference for the whole family</div>
+</header>
+
+<div class="tabs primary-tabs">
+  <button class="tab-btn active" data-tab="orlando">Orlando</button>
+  <button class="tab-btn" data-tab="profiles">Profiles</button>
+  <button class="tab-btn" data-tab="stats">Stats</button>
+</div>
+<div class="tabs sub-tabs" style="display:none;">
+  <button class="tab-btn active" data-tab="alena-profile">Alena</button>
+  <button class="tab-btn" data-tab="orlando-profile">Orlando</button>
+  <button class="tab-btn" data-tab="hunter-profile">Hunter</button>
+  <button class="tab-btn" data-tab="myles-profile">Myles</button>
+  <button class="tab-btn" data-tab="isabella-profile">Isabella</button>
+</div>
+
+<!-- ================= ORLANDO CHECKLIST ================= -->
+<div class="panel active" id="panel-orlando">
+  <div class="toolbar">
+    <label for="orlando-date">Date</label>
+    <input type="date" id="orlando-date">
+    <span class="copy-note" id="orlando-save-note">saved</span>
+  </div>
+
+  <div class="card">
+    <h3>Sleep</h3>
+    <div class="row">
+      <div>
+        <label class="field-label" for="orlando-wake">Woke up</label>
+        <input type="time" id="orlando-wake">
+      </div>
+      <div>
+        <label class="field-label" for="orlando-bed">Bed at</label>
+        <input type="time" id="orlando-bed">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Skool</h3>
+    <label class="field-label" for="orlando-skool">Skool actions</label>
+    <textarea id="orlando-skool" placeholder="Posts, comments, DMs, engagement..."></textarea>
+  </div>
+
+  <div class="card">
+    <h3>Work &amp; Business</h3>
+    <div class="row">
+      <div style="max-width:160px;">
+        <label class="field-label" for="orlando-hours-worked">Hours worked</label>
+        <input type="number" min="0" step="0.5" id="orlando-hours-worked" placeholder="0">
+      </div>
+      <div style="max-width:160px;">
+        <label class="field-label" for="orlando-ot-hours">OT hours worked</label>
+        <input type="number" min="0" step="0.5" id="orlando-ot-hours" placeholder="0">
+      </div>
+    </div>
+    <div style="height:10px"></div>
+    <label class="field-label" for="orlando-business">Worked on the business</label>
+    <textarea id="orlando-business" placeholder="What did you work on?"></textarea>
+  </div>
+
+  <div class="card">
+    <h3>House &amp; Family</h3>
+    <label class="field-label" for="orlando-house">Worked on the house</label>
+    <textarea id="orlando-house" placeholder="What did you work on?"></textarea>
+    <div style="height:10px"></div>
+    <div class="row">
+      <div style="max-width:160px;">
+        <label class="field-label" for="orlando-bags"># Bags picked up</label>
+        <input type="number" min="0" id="orlando-bags" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Yard &amp; Lawn Maintenance</h3>
+    <div class="inline-check">
+      <input type="checkbox" id="orlando-grass-cut">
+      <label for="orlando-grass-cut">Grass cut</label>
+    </div>
+    <div style="height:10px"></div>
+    <div class="inline-check">
+      <input type="checkbox" id="orlando-grass-sprayed">
+      <label for="orlando-grass-sprayed">Grass sprayed with bioenzymes</label>
+    </div>
+    <div style="height:14px"></div>
+    <label class="field-label" for="orlando-yard-extra">Additional house or lawn maintenance</label>
+    <input type="text" id="orlando-yard-extra" placeholder="What else did you take care of?" style="width:100%">
+  </div>
+
+  <div class="card">
+    <h3>Laundry</h3>
+    <div class="inline-check">
+      <input type="checkbox" id="orlando-laundry-done">
+      <label for="orlando-laundry-done">Did laundry</label>
+    </div>
+    <div style="height:14px"></div>
+    <div class="note-box" style="margin-top:0;">Uniforms</div>
+    <div style="height:6px"></div>
+    <div class="inline-check">
+      <input type="checkbox" id="orlando-laundry-uniforms">
+      <label for="orlando-laundry-uniforms">Washed uniforms</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Cleaning</h3>
+    <div class="inline-check">
+      <input type="checkbox" id="orlando-vacuumed">
+      <label for="orlando-vacuumed">Vacuumed</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Around the House — Give Yourself Credit</h3>
+    <div class="workout-grid">
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-credit-dishes">
+        <label for="orlando-credit-dishes">Dishes</label>
+      </div>
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-credit-cooking">
+        <label for="orlando-credit-cooking">Cooking</label>
+      </div>
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-credit-store">
+        <label for="orlando-credit-store">Running to the store</label>
+      </div>
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-credit-kids">
+        <label for="orlando-credit-kids">Took/picked up a child</label>
+      </div>
+    </div>
+    <div style="height:10px"></div>
+    <label class="field-label" for="orlando-credit-other">Other extras</label>
+    <input type="text" id="orlando-credit-other" placeholder="Anything else you handled today" style="width:100%">
+    <div class="note-box" id="orlando-credit-count">You haven't logged anything yet today — but you probably did more than you think.</div>
+  </div>
+
+  <div class="card">
+    <h3>Food Tracking</h3>
+    <div class="inline-check">
+      <input type="checkbox" id="orlando-food-tracked">
+      <label for="orlando-food-tracked">Tracked food on app</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Personal Care</h3>
+    <div class="workout-grid">
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-pc-massage-gun">
+        <label for="orlando-pc-massage-gun">Massage gun</label>
+      </div>
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-pc-pemf">
+        <label for="orlando-pc-pemf">PEMF</label>
+      </div>
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-pc-roller">
+        <label for="orlando-pc-roller">Muscle roller</label>
+      </div>
+      <div class="inline-check">
+        <input type="checkbox" id="orlando-pc-itovi">
+        <label for="orlando-pc-itovi">Itovi scan</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Workouts</h3>
+    <div class="workout-grid">
+      <div class="workout-item">
+        <div class="inline-check">
+          <input type="checkbox" id="orlando-w-arms-done">
+          <label for="orlando-w-arms-done">Arms &amp; Core</label>
+        </div>
+        <input type="text" id="orlando-w-arms-notes" placeholder="What did you work?" style="width:100%">
+      </div>
+      <div class="workout-item">
+        <div class="inline-check">
+          <input type="checkbox" id="orlando-w-chest-done">
+          <label for="orlando-w-chest-done">Chest, Back, Shoulders</label>
+        </div>
+        <input type="text" id="orlando-w-chest-notes" placeholder="What did you work?" style="width:100%">
+      </div>
+      <div class="workout-item">
+        <div class="inline-check">
+          <input type="checkbox" id="orlando-w-legs-done">
+          <label for="orlando-w-legs-done">Legs</label>
+        </div>
+        <input type="text" id="orlando-w-legs-notes" placeholder="What did you work?" style="width:100%">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>TV &amp; Downtime</h3>
+    <div class="row">
+      <div style="max-width:160px;">
+        <label class="field-label" for="orlando-tv-minutes">TV time (min)</label>
+        <input type="number" min="0" id="orlando-tv-minutes" placeholder="0">
+      </div>
+      <div>
+        <label class="field-label" for="orlando-tv-watched">What we watched</label>
+        <input type="text" id="orlando-tv-watched" placeholder="e.g. show/movie title">
+      </div>
+    </div>
+  </div>
+
+  <div class="generate-bar">
+    <button onclick="generatePrompt('orlando')">Generate AI Prompt</button>
+    <button class="secondary" onclick="copyOutput('orlando')">Copy</button>
+    <span class="copy-note" id="orlando-copy-note">copied!</span>
+  </div>
+  <textarea id="orlando-output" readonly placeholder="Click 'Generate AI Prompt' to compile today's checklist into a prompt you can paste into the daily check-in thread."></textarea>
+</div>
+
+<!-- ================= ALENA PROFILE ================= -->
+<div class="panel" id="panel-alena-profile">
+  <div class="profile-header">
+    <h2 style="color:var(--alena)">Alena — Complete Profile</h2>
+    <div class="birth">Born 1983-09-19, 15:57 — Belleville, Illinois</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Western Natal Chart (Tropical)</h3>
+      <div class="kv"><span class="k">Ascendant (Rising)</span><span class="v">Capricorn 22°</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Virgo 26° · House 8</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Aquarius 29° · House 1</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Virgo 18° · House 8 (Rx)</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Leo 23° · House 7</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Leo 23° · House 7</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Sagittarius 5° · House 10</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Scorpio 2° · House 9</span></div>
+      <div class="kv"><span class="k">Uranus</span><span class="v">Sagittarius 5° · House 10</span></div>
+      <div class="kv"><span class="k">Neptune</span><span class="v">Sagittarius 26° · House 11</span></div>
+      <div class="kv"><span class="k">Pluto</span><span class="v">Libra 28° · House 9</span></div>
+      <div class="kv"><span class="k">North Node</span><span class="v">Gemini · House 5</span></div>
+      <div class="kv"><span class="k">South Node</span><span class="v">Sagittarius · House 11</span></div>
+      <div class="kv"><span class="k">Chiron</span><span class="v">Gemini · House 4</span></div>
+      <div class="kv"><span class="k">Chart Ruler</span><span class="v">Saturn</span></div>
+    </div>
+
+    <div class="card">
+      <h3>House Cusps</h3>
+      <div class="kv"><span class="k">1st</span><span class="v">Capricorn</span></div>
+      <div class="kv"><span class="k">2nd</span><span class="v">Pisces</span></div>
+      <div class="kv"><span class="k">3rd</span><span class="v">Aries</span></div>
+      <div class="kv"><span class="k">4th</span><span class="v">Taurus</span></div>
+      <div class="kv"><span class="k">5th</span><span class="v">Gemini</span></div>
+      <div class="kv"><span class="k">6th</span><span class="v">Gemini</span></div>
+      <div class="kv"><span class="k">7th</span><span class="v">Cancer</span></div>
+      <div class="kv"><span class="k">8th</span><span class="v">Virgo</span></div>
+      <div class="kv"><span class="k">9th</span><span class="v">Libra</span></div>
+      <div class="kv"><span class="k">10th</span><span class="v">Scorpio</span></div>
+      <div class="kv"><span class="k">11th</span><span class="v">Sagittarius</span></div>
+      <div class="kv"><span class="k">12th</span><span class="v">Sagittarius</span></div>
+      <div class="note-box">
+        Notable aspects: Chiron 2° Gemini Rx · North Node 19° Gemini Rx · Midheaven Scorpio 14° (10th house) · Venus conj. Mars 0° · Sun square Neptune 0° · Moon trine Pluto 1° · Moon trine Saturn 2° · Jupiter conj. Uranus 0° · Venus quincunx Ascendant 1° · Sun trine Ascendant 4° · Mars quincunx Ascendant 1°.<br><br>
+        Cradle pattern: Mars Leo 23 · Moon Aquarius 29 · Neptune Sagittarius 26 · Pluto Libra 28 · Venus Leo 23.<br>
+        T-square: Chiron Gemini 2 · Jupiter Sagittarius 5 · Moon Aquarius 29 · Uranus Sagittarius 5.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Vedic Natal Chart (Sidereal)</h3>
+      <div class="kv"><span class="k">Ascendant</span><span class="v">Sagittarius · House 1</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Virgo · House 10</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Aquarius · House 3</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Leo · House 9</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Leo · House 9</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Scorpio · House 12</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Cancer · House 8</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Libra · House 11</span></div>
+      <div class="kv"><span class="k">Rahu (North Node)</span><span class="v">Taurus · House 6</span></div>
+      <div class="kv"><span class="k">Ketu (South Node)</span><span class="v">Scorpio · House 12</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Human Design Chart</h3>
+      <div class="kv"><span class="k">Type</span><span class="v">Generator</span></div>
+      <div class="kv"><span class="k">Strategy</span><span class="v">Wait to Respond</span></div>
+      <div class="kv"><span class="k">Authority</span><span class="v">Sacral</span></div>
+      <div class="kv"><span class="k">Profile</span><span class="v">4/1</span></div>
+      <div class="kv"><span class="k">Definition</span><span class="v">Single Definition</span></div>
+      <div class="kv"><span class="k">Incarnation Cross</span><span class="v">Juxtaposition Cross of Conflict 6/36 | 15/10 | Fixed</span></div>
+      <div class="kv"><span class="k">Defined Centers</span><span class="v">G Center (Identity), Sacral</span></div>
+      <div class="kv"><span class="k">Channels</span><span class="v">10-34 Exploration</span></div>
+      <div class="note-box">
+        <strong>Personality (Conscious) Gates:</strong> Sun 6.4 · Earth 36.4 · Moon 30.6 · North Node 45.4 · South Node 26.4 · Mercury 47.2 · Venus 4.5 · Mars 4.6 · Jupiter 34.6 · Saturn 28.1 · Uranus 34.6 · Neptune 11.5 · Pluto 50.2<br><br>
+        <strong>Design (Unconscious) Gates:</strong> Sun 15.1 · Earth 10.1 · Moon 50.3 · North Node 12.3 · South Node 11.3 · Mercury 16.3 · Venus 7.1 · Mars 12.2 · Jupiter 34.4 · Saturn 50.2 · Uranus 9.1 · Neptune 11.6 · Pluto 50.1<br><br>
+        <strong>Additional:</strong> Cognition Inner Vision · Determination Alternating Appetite · Environment Passive Mountains · Variables PRRDRR · Sense Judgement · Motivation Innocence · Transference Desire · View Possibility · Distraction Probability · Trajectory Observed
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Gene Keys Hologenetic Profile</h3>
+      <div class="kv"><span class="k">Activation Sequence</span><span class="v">Life's Work 6.4 · Evolution 36.4 · Radiance 15.1 · Purpose 10.1</span></div>
+      <div class="kv"><span class="k">Venus Sequence</span><span class="v">Attraction 50.3 · IQ 4.5 · EQ 4.6 · SQ 7.1</span></div>
+      <div class="kv"><span class="k">Pearl Sequence</span><span class="v">Vocation 12.2 · Culture 34.4 · Brand 6.4 · Pearl 34.6</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Chinese Zodiac &amp; Mayan Calendar</h3>
+      <div class="kv"><span class="k">Chinese Animal</span><span class="v">Pig</span></div>
+      <div class="kv"><span class="k">Day Sign</span><span class="v">Jaguar — Ix Ascension</span></div>
+      <div class="kv"><span class="k">Trecena Sign</span><span class="v">Monkey — Chuwen Manifestation</span></div>
+      <div class="kv"><span class="k">Tone</span><span class="v">4 — Structure</span></div>
+      <div class="note-box">Monkey traits: Artistic, Spontaneous, Humorous, Curious, Inventive, Magical, Agile, Child-like. Turns life into playful creation.</div>
+    </div>
+
+    <div class="card">
+      <h3>Life Path &amp; Personality Systems</h3>
+      <div class="kv"><span class="k">Life Path Number</span><span class="v">4 — Organizer/Builder</span></div>
+      <div class="kv"><span class="k">MBTI</span><span class="v">ENFP</span></div>
+      <div class="note-box">Champion, Curious, Enthusiastic, Visionary, Expressive, Strategic, Open-minded, Adventurous, Passionate, Empathetic, Imaginative</div>
+    </div>
+
+    <div class="card">
+      <h3>Big Five / OCEAN</h3>
+      <div class="kv"><span class="k">Openness</span><span class="v">94%</span></div>
+      <div class="kv"><span class="k">Conscientiousness</span><span class="v">63%</span></div>
+      <div class="kv"><span class="k">Extraversion</span><span class="v">81%</span></div>
+      <div class="kv"><span class="k">Agreeableness</span><span class="v">72%</span></div>
+      <div class="kv"><span class="k">Neuroticism</span><span class="v">41%</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Enneagram</h3>
+      <div class="kv"><span class="k">Type 1 Reformer</span><span class="v">93%</span></div>
+      <div class="kv"><span class="k">Type 2 Helper</span><span class="v">90%</span></div>
+      <div class="kv"><span class="k">Type 3 Achiever</span><span class="v">95%</span></div>
+      <div class="kv"><span class="k">Type 4 Individualist</span><span class="v">88%</span></div>
+      <div class="kv"><span class="k">Type 5 Investigator</span><span class="v">93%</span></div>
+      <div class="kv"><span class="k">Type 6 Loyalist</span><span class="v">95%</span></div>
+      <div class="kv"><span class="k">Type 7 Enthusiast</span><span class="v">83%</span></div>
+      <div class="kv"><span class="k">Type 8 Challenger</span><span class="v">95%</span></div>
+      <div class="kv"><span class="k">Type 9 Peacemaker</span><span class="v">48%</span></div>
+      <div class="note-box">Three types tied at the top (3, 6, 8), near-uniformly high scores elsewhere except 9 — a high-intensity, multi-driver profile rather than one dominant type.</div>
+    </div>
+
+    <div class="card">
+      <h3>DISC</h3>
+      <div class="kv"><span class="k">Dominance</span><span class="v">94%</span></div>
+      <div class="kv"><span class="k">Influence</span><span class="v">97%</span></div>
+      <div class="kv"><span class="k">Steadiness</span><span class="v">84%</span></div>
+      <div class="kv"><span class="k">Conscientiousness</span><span class="v">100%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ORLANDO PROFILE ================= -->
+<div class="panel" id="panel-orlando-profile">
+  <div class="profile-header">
+    <h2 style="color:var(--orlando)">Orlando — Complete Profile</h2>
+    <div class="birth">Born 1977-12-16, 04:38 — Hialeah, Florida</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Western Natal Chart (Tropical)</h3>
+      <div class="kv"><span class="k">Ascendant (Rising)</span><span class="v">Scorpio 22°</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Sagittarius 24° · House 2</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Pisces 11° · House 4</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Capricorn 5° · House 2 (Rx)</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Sagittarius 15° · House 1</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Leo 11° · House 9 (Rx)</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Cancer 1° · House 8 (Rx)</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Virgo 0° · House 10 (Rx)</span></div>
+      <div class="kv"><span class="k">Uranus</span><span class="v">Scorpio 14° · House 12</span></div>
+      <div class="kv"><span class="k">Neptune</span><span class="v">Sagittarius 16° · House 1</span></div>
+      <div class="kv"><span class="k">Pluto</span><span class="v">Libra 16° · House 11</span></div>
+      <div class="kv"><span class="k">North Node</span><span class="v">Libra · House 11</span></div>
+      <div class="kv"><span class="k">South Node</span><span class="v">Aries · House 5</span></div>
+      <div class="kv"><span class="k">Chiron</span><span class="v">Taurus · House 6</span></div>
+      <div class="kv"><span class="k">Chart Ruler</span><span class="v">Mars, co-ruled by Pluto</span></div>
+    </div>
+
+    <div class="card">
+      <h3>House Cusps</h3>
+      <div class="kv"><span class="k">1st</span><span class="v">Scorpio</span></div>
+      <div class="kv"><span class="k">2nd</span><span class="v">Sagittarius</span></div>
+      <div class="kv"><span class="k">3rd</span><span class="v">Capricorn</span></div>
+      <div class="kv"><span class="k">4th</span><span class="v">Aquarius</span></div>
+      <div class="kv"><span class="k">5th</span><span class="v">Pisces</span></div>
+      <div class="kv"><span class="k">6th</span><span class="v">Aries</span></div>
+      <div class="kv"><span class="k">7th</span><span class="v">Taurus</span></div>
+      <div class="kv"><span class="k">8th</span><span class="v">Gemini</span></div>
+      <div class="kv"><span class="k">9th</span><span class="v">Cancer</span></div>
+      <div class="kv"><span class="k">10th</span><span class="v">Leo</span></div>
+      <div class="kv"><span class="k">11th</span><span class="v">Virgo</span></div>
+      <div class="kv"><span class="k">12th</span><span class="v">Scorpio</span></div>
+      <div class="note-box">
+        Notable aspects: North Node Libra 11 Rx (11th house) · Chiron Taurus 1 Rx (6th house) · Midheaven Leo 26 (10th house) · Venus conj. Neptune 0° · Moon quincunx Mars 0° · Venus sextile Pluto 0° · Sun trine MC 2° · Moon trine Uranus 2° · Mars sextile North Node 0° · Neptune sextile Pluto 0° · Moon quincunx North Node 0°.<br><br>
+        Kite pattern: Chiron Taurus 1 · Jupiter Cancer 1 · Mercury Capricorn 5 · Saturn Virgo 0 — Grand Trine with an outlet (earth and water).
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Vedic Natal Chart (Sidereal)</h3>
+      <div class="kv"><span class="k">Ascendant</span><span class="v">Libra · House 1</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Sagittarius · House 3</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Aquarius · House 5</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Cancer · House 10</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Sagittarius · House 3</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Gemini · House 9</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Scorpio · House 2</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Leo · House 11</span></div>
+      <div class="kv"><span class="k">Rahu (North Node)</span><span class="v">Virgo · House 12</span></div>
+      <div class="kv"><span class="k">Ketu (South Node)</span><span class="v">Pisces · House 6</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Human Design Chart</h3>
+      <div class="kv"><span class="k">Type</span><span class="v">Generator</span></div>
+      <div class="kv"><span class="k">Strategy</span><span class="v">Wait to Respond</span></div>
+      <div class="kv"><span class="k">Authority</span><span class="v">Emotional (Solar Plexus)</span></div>
+      <div class="kv"><span class="k">Profile</span><span class="v">2/4</span></div>
+      <div class="kv"><span class="k">Definition</span><span class="v">Single Definition</span></div>
+      <div class="kv"><span class="k">Incarnation Cross</span><span class="v">Right Angle Cross of Eden 4 — 11/12 | 6/36</span></div>
+      <div class="kv"><span class="k">Defined Centers</span><span class="v">G Center (Identity), Sacral, Solar Plexus (Emotional)</span></div>
+      <div class="kv"><span class="k">Channels</span><span class="v">5-15 Rhythm, 6-59 Mating</span></div>
+      <div class="note-box">
+        <strong>Personality (Conscious) Gates:</strong> Sun 11.2 · Earth 12.2 · Moon 63.1 · North Node 48.3 · South Node 21.3 · Mercury 58.2 · Venus 5.5 · Mars 33.5 · Jupiter 15.4 · Saturn 59.1 · Uranus 1.2 · Neptune 5.6 · Pluto 57.2<br><br>
+        <strong>Design (Unconscious) Gates:</strong> Sun 6.4 · Earth 36.4 · Moon 5.4 · North Node 57.1 · South Node 51.1 · Mercury 40.4 · Venus 29.2 · Mars 39.2 · Jupiter 52.1 · Saturn 29.1 · Uranus 44.2 · Neptune 5.3 · Pluto 48.5<br><br>
+        <strong>Additional:</strong> Cognition Feeling · Determination Indirect Light · Environment External Markets · Variables PRRDRR · Sense Acceptance · Motivation Guilt · Transference Hope · View/Perspective Personal · Distraction Power · Trajectory Conditioned
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Gene Keys Hologenetic Profile</h3>
+      <div class="kv"><span class="k">Activation Sequence</span><span class="v">Life's Work 11.2 · Evolution 12.2 · Radiance 6.4 · Purpose 36.4</span></div>
+      <div class="kv"><span class="k">Venus Sequence</span><span class="v">Attraction 5.4 · IQ 5.5 · EQ 33.5 · SQ 29.2</span></div>
+      <div class="kv"><span class="k">Pearl Sequence</span><span class="v">Vocation 39.2 · Culture 52.1 · Brand 11.2 · Pearl 15.4</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Chinese Zodiac &amp; Mayan Calendar</h3>
+      <div class="kv"><span class="k">Chinese Animal</span><span class="v">Snake — Alchemist</span></div>
+      <div class="kv"><span class="k">Day Sign</span><span class="v">Monkey — Chuwen Manifestation</span></div>
+      <div class="kv"><span class="k">Trecena Sign</span><span class="v">Serpent — Chikchan Resolution</span></div>
+      <div class="kv"><span class="k">Tone</span><span class="v">7 — Reflects</span></div>
+      <div class="note-box">Snake traits: Wise, Mysterious, Strategic, Elegant, Discerning, Intuitive, Private, Transformative, Intelligent, Magnetic.<br><br>Serpent traits: Passionate, Resourceful, Sensual, Instinctive, Headstrong, Charismatic, Intensely driven, Transformative.</div>
+    </div>
+
+    <div class="card">
+      <h3>Life Path &amp; Personality Systems</h3>
+      <div class="kv"><span class="k">Life Path Number</span><span class="v">7 — Mystic/Seeker</span></div>
+      <div class="kv"><span class="k">MBTI</span><span class="v">ENTJ</span></div>
+      <div class="note-box">Commander, Assertive, Strategic, Decisive, Efficient, Driven, Visionary, Organized, Confident, Charismatic, Focused. Bold decision-maker with natural leadership ability.</div>
+    </div>
+
+    <div class="card">
+      <h3>Big Five / OCEAN</h3>
+      <div class="kv"><span class="k">Openness</span><span class="v">78%</span></div>
+      <div class="kv"><span class="k">Conscientiousness</span><span class="v">78%</span></div>
+      <div class="kv"><span class="k">Extraversion</span><span class="v">50%</span></div>
+      <div class="kv"><span class="k">Agreeableness</span><span class="v">69%</span></div>
+      <div class="kv"><span class="k">Neuroticism</span><span class="v">25%</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Enneagram</h3>
+      <div class="kv"><span class="k">Primary Type</span><span class="v">8 Challenger — 83%</span></div>
+      <div class="kv"><span class="k">Wing</span><span class="v">8w7</span></div>
+      <div class="kv"><span class="k">Growth direction</span><span class="v">Type 2 Helper</span></div>
+      <div class="kv"><span class="k">Stress direction</span><span class="v">Type 5 Investigator</span></div>
+      <div class="note-box">
+        Full scores: Type 1: 70% · Type 2: 80% · Type 3: 68% · Type 4: 68% · Type 5: 73% · Type 6: 75% · Type 7: 78% · Type 8: 83% · Type 9: 45%
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>DISC</h3>
+      <div class="kv"><span class="k">Blend type</span><span class="v">C/I — Clarity/Influence</span></div>
+      <div class="kv"><span class="k">Drive (D)</span><span class="v">72%</span></div>
+      <div class="kv"><span class="k">Influence (I)</span><span class="v">88%</span></div>
+      <div class="kv"><span class="k">Support (S)</span><span class="v">88%</span></div>
+      <div class="kv"><span class="k">Clarity (C)</span><span class="v">91%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HUNTER PROFILE ================= -->
+<div class="panel" id="panel-hunter-profile">
+  <div class="profile-header">
+    <h2 style="color:var(--hunter)">Hunter — Astrology &amp; Human Design</h2>
+    <div class="birth">Born 2006-08-18, 07:26 — Titusville, Florida</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Western Natal Chart</h3>
+      <div class="kv"><span class="k">Ascendant (Rising)</span><span class="v">Virgo 1°</span></div>
+      <div class="kv"><span class="k">Midheaven (MC)</span><span class="v">Taurus 29°</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Leo 25° · House 12</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Gemini 24° · House 10</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Leo 11° · House 12</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Leo 6° · House 12</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Virgo 16° · House 1</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Scorpio 11° · House 3</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Leo 16° · House 12</span></div>
+      <div class="kv"><span class="k">Uranus</span><span class="v">Pisces 13° · House 7 (Rx)</span></div>
+      <div class="kv"><span class="k">Neptune</span><span class="v">Aquarius 18° · House 6 (Rx)</span></div>
+      <div class="kv"><span class="k">Pluto</span><span class="v">Sagittarius 24° · House 4 (Rx)</span></div>
+      <div class="kv"><span class="k">North Node</span><span class="v">Pisces 26° · House 7 (Rx)</span></div>
+      <div class="kv"><span class="k">South Node</span><span class="v">Virgo · House 1</span></div>
+      <div class="kv"><span class="k">Chiron</span><span class="v">Aquarius 6° · House 6 (Rx)</span></div>
+      <div class="kv"><span class="k">Chart Ruler</span><span class="v">Mercury</span></div>
+    </div>
+
+    <div class="card">
+      <h3>House Cusps</h3>
+      <div class="kv"><span class="k">1st</span><span class="v">Virgo</span></div>
+      <div class="kv"><span class="k">2nd</span><span class="v">Virgo</span></div>
+      <div class="kv"><span class="k">3rd</span><span class="v">Libra</span></div>
+      <div class="kv"><span class="k">4th</span><span class="v">Scorpio</span></div>
+      <div class="kv"><span class="k">5th</span><span class="v">Capricorn</span></div>
+      <div class="kv"><span class="k">6th</span><span class="v">Aquarius</span></div>
+      <div class="kv"><span class="k">7th</span><span class="v">Pisces</span></div>
+      <div class="kv"><span class="k">8th</span><span class="v">Pisces</span></div>
+      <div class="kv"><span class="k">9th</span><span class="v">Aries</span></div>
+      <div class="kv"><span class="k">10th</span><span class="v">Taurus</span></div>
+      <div class="kv"><span class="k">12th</span><span class="v">Leo</span></div>
+      <div class="note-box">
+        11th house cusp not in reference.<br><br>
+        Notable aspects: Sun sextile Moon 0° · Moon opposition Pluto 0° · Sun trine Pluto 1° · Mercury square Jupiter 0° · Sun conjunction Ascendant 6° · Venus opposition Chiron 0° · Mercury conjunction Saturn 4° · Jupiter trine Uranus 1°.<br><br>
+        T-Square: Moon 24 Gemini · North Node 26 Pisces · Pluto 24 Sagittarius.<br>
+        Second T-Square: Chiron 6 Aquarius · Jupiter 11 Scorpio · Mercury 11 Leo · Venus 6 Leo.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Human Design Chart</h3>
+      <div class="kv"><span class="k">Type</span><span class="v">Manifesting Generator</span></div>
+      <div class="kv"><span class="k">Strategy</span><span class="v">Wait to Respond, then Inform</span></div>
+      <div class="kv"><span class="k">Authority</span><span class="v">Emotional (Solar Plexus)</span></div>
+      <div class="kv"><span class="k">Profile</span><span class="v">1/4</span></div>
+      <div class="kv"><span class="k">Definition</span><span class="v">Split Definition</span></div>
+      <div class="kv"><span class="k">Incarnation Cross</span><span class="v">Right Angle Cross of Contagion 3 29/30 | 8/14</span></div>
+      <div class="kv"><span class="k">Defined Centers</span><span class="v">Throat, G Center (Identity), Heart (Ego/Will), Sacral, Solar Plexus (Emotional), Root</span></div>
+      <div class="kv"><span class="k">Channels</span><span class="v">7-31 The Alpha, 13-33 The Prodigal, 30-41 Recognition, 29-46 Discovery, 25-51 Initiation</span></div>
+      <div class="note-box">
+        <strong>Design (Unconscious) Gates:</strong> Sun 8.4 · Earth 14.4 · North Node 25.5 · South Node 46.5 · Moon 41.1 · Mercury 8.3 · Venus 51.3 · Mars 53.6 · Jupiter 44.5 · Saturn 31.5 · Uranus 63.4 · Neptune 49.1 · Pluto 11.4<br><br>
+        <strong>Personality (Conscious) Gates:</strong> Sun 29.1 · Earth 30.1 · North Node 36.4 · South Node 6.4 · Moon 12.3 · Mercury 33.5 · Venus 31.6 · Mars 64.6 · Jupiter 44.5 · Saturn 7.4 · Uranus 63.3 · Neptune 13.6 · Pluto 11.2<br><br>
+        <strong>PHS &amp; Variables:</strong> Cognition Outer Vision · Determination Consecutive-Appetite · Environment Wide-Valleys · Variables PRLDLR · Sense Judgement · Motivation Innocence · Transference Desire · View/Perspective Power · Distraction Personal · Trajectory Observed
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Gene Keys Hologenetic Profile</h3>
+      <div class="kv"><span class="k">Activation Sequence</span><span class="v">Life's Work 29.1 · Evolution 30.1 · Radiance 8.4 · Purpose 14.4</span></div>
+      <div class="kv"><span class="k">Venus Sequence</span><span class="v">Attraction 41.1 · IQ 31.6 · EQ 64.6 · SQ 51.3</span></div>
+      <div class="kv"><span class="k">Pearl Sequence</span><span class="v">Vocation 53.6 · Culture 44.5 · Brand 29.1 · Pearl 44.5</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MYLES PROFILE ================= -->
+<div class="panel" id="panel-myles-profile">
+  <div class="profile-header">
+    <h2 style="color:var(--myles)">Myles — Astrology &amp; Human Design</h2>
+    <div class="birth">Born 2008-08-05, 07:26 — Winter Park, Florida</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Western Natal Chart</h3>
+      <div class="kv"><span class="k">Ascendant (Rising)</span><span class="v">Leo 20°</span></div>
+      <div class="kv"><span class="k">Midheaven (MC)</span><span class="v">Taurus 17°</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Leo 13° · House 12</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Libra 4° · House 2</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Leo 20° · House 1</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Leo 29° · House 1</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Virgo 21° · House 2</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Capricorn 14° · House 5 (Rx)</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Virgo 8° · House 1</span></div>
+      <div class="kv"><span class="k">Uranus</span><span class="v">Pisces 22° · House 8 (Rx)</span></div>
+      <div class="kv"><span class="k">Neptune</span><span class="v">Aquarius 23° · House 7 (Rx)</span></div>
+      <div class="kv"><span class="k">Pluto</span><span class="v">Sagittarius 28° · House 5 (Rx)</span></div>
+      <div class="kv"><span class="k">North Node</span><span class="v">Aquarius 18° · House 6 (Rx)</span></div>
+      <div class="kv"><span class="k">South Node</span><span class="v">Leo · House 12</span></div>
+      <div class="kv"><span class="k">Chiron</span><span class="v">Aquarius 18° · House 6 (Rx)</span></div>
+      <div class="kv"><span class="k">Chart Ruler</span><span class="v">Sun</span></div>
+    </div>
+
+    <div class="card">
+      <h3>House Cusps</h3>
+      <div class="kv"><span class="k">1st</span><span class="v">Leo</span></div>
+      <div class="kv"><span class="k">2nd</span><span class="v">Virgo</span></div>
+      <div class="kv"><span class="k">3rd</span><span class="v">Libra</span></div>
+      <div class="kv"><span class="k">4th</span><span class="v">Scorpio</span></div>
+      <div class="kv"><span class="k">5th</span><span class="v">Sagittarius</span></div>
+      <div class="kv"><span class="k">6th</span><span class="v">Capricorn</span></div>
+      <div class="kv"><span class="k">7th</span><span class="v">Aquarius</span></div>
+      <div class="kv"><span class="k">8th</span><span class="v">Pisces</span></div>
+      <div class="kv"><span class="k">9th</span><span class="v">Aries</span></div>
+      <div class="kv"><span class="k">10th</span><span class="v">Taurus</span></div>
+      <div class="kv"><span class="k">11th</span><span class="v">Gemini</span></div>
+      <div class="kv"><span class="k">12th</span><span class="v">Cancer</span></div>
+      <div class="note-box">
+        Notable aspects: Mercury conjunction Ascendant 0° · Venus trine Pluto 0° · Mars opposition Uranus 0° · Sun quincunx Jupiter 0° · Chiron opposition Ascendant 1° · Mercury opposition Neptune 2° · Sun square MC 3° · Sun conjunction Ascendant 6°.<br><br>
+        T-Square: Ascendant 20 Leo · Chiron 18 Aquarius · MC 17 Taurus · Mercury 20 Leo · Sun 13 Leo.<br>
+        Second T-Square: Ascendant 20 Leo · MC 17 Taurus · Mercury 20 Leo · North Node 18 Aquarius.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Human Design Chart</h3>
+      <div class="kv"><span class="k">Type</span><span class="v">Projector</span></div>
+      <div class="kv"><span class="k">Strategy</span><span class="v">Wait for the Invitation</span></div>
+      <div class="kv"><span class="k">Authority</span><span class="v">Self-Projected (G Center)</span></div>
+      <div class="kv"><span class="k">Profile</span><span class="v">1/3</span></div>
+      <div class="kv"><span class="k">Definition</span><span class="v">Single Definition</span></div>
+      <div class="kv"><span class="k">Incarnation Cross</span><span class="v">Right Angle Cross of the Sphinx 3 7/13 | 2/1</span></div>
+      <div class="kv"><span class="k">Defined Centers</span><span class="v">Throat, G Center (Identity)</span></div>
+      <div class="kv"><span class="k">Channels</span><span class="v">10-20 Awakening</span></div>
+      <div class="note-box">
+        <strong>Design (Unconscious) Gates:</strong> Sun 2.3 · Earth 1.3 · North Node 49.6 · South Node 4.6 · Moon 2.3 · Mercury 20.5 · Venus 27.5 · Mars 56.2 · Jupiter 61.2 · Saturn 59.2 · Uranus 22.5 · Neptune 49.6 · Pluto 10.3<br><br>
+        <strong>Personality (Conscious) Gates:</strong> Sun 7.1 · Earth 13.1 · North Node 13.6 · South Node 7.6 · Moon 18.2 · Mercury 4.2 · Venus 29.5 · Mars 47.5 · Jupiter 38.6 · Saturn 40.3 · Uranus 22.6 · Neptune 49.5 · Pluto 10.1<br><br>
+        <strong>PHS &amp; Variables:</strong> Cognition Feeling · Determination Closed-Taste · Environment Dry-Kitchens · Variables PLRDRR · Sense Security · Motivation Hope · Transference Guilt · View/Perspective Wanting/Need · Distraction Survival · Trajectory Theist
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Gene Keys Hologenetic Profile</h3>
+      <div class="kv"><span class="k">Activation Sequence</span><span class="v">Life's Work 7.1 · Evolution 13.1 · Radiance 2.3 · Purpose 1.3</span></div>
+      <div class="kv"><span class="k">Venus Sequence</span><span class="v">Attraction 2.3 · IQ 29.5 · EQ 47.5 · SQ 27.5</span></div>
+      <div class="kv"><span class="k">Pearl Sequence</span><span class="v">Vocation 56.2 · Culture 61.2 · Brand 7.1 · Pearl 38.6</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ISABELLA PROFILE ================= -->
+<div class="panel" id="panel-isabella-profile">
+  <div class="profile-header">
+    <h2 style="color:var(--isabella)">Isabella — Astrology &amp; Human Design</h2>
+    <div class="birth">Born 2009-06-04, 16:41 — Titusville, Florida</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Western Natal Chart</h3>
+      <div class="kv"><span class="k">Ascendant (Rising)</span><span class="v">Libra 28°</span></div>
+      <div class="kv"><span class="k">Midheaven (MC)</span><span class="v">Leo 0°</span></div>
+      <div class="kv"><span class="k">Sun</span><span class="v">Gemini 14° · House 8</span></div>
+      <div class="kv"><span class="k">Moon</span><span class="v">Scorpio 11° · House 1</span></div>
+      <div class="kv"><span class="k">Mercury</span><span class="v">Taurus 23° · House 7</span></div>
+      <div class="kv"><span class="k">Venus</span><span class="v">Aries 28° · House 6</span></div>
+      <div class="kv"><span class="k">Mars</span><span class="v">Taurus 2° · House 7</span></div>
+      <div class="kv"><span class="k">Jupiter</span><span class="v">Aquarius 26° · House 4</span></div>
+      <div class="kv"><span class="k">Saturn</span><span class="v">Virgo 15° · House 11</span></div>
+      <div class="kv"><span class="k">Uranus</span><span class="v">Pisces 26° · House 5</span></div>
+      <div class="kv"><span class="k">Neptune</span><span class="v">Aquarius 26° · House 4 (Rx)</span></div>
+      <div class="kv"><span class="k">Pluto</span><span class="v">Capricorn 2° · House 3 (Rx)</span></div>
+      <div class="kv"><span class="k">North Node</span><span class="v">Aquarius 2° · House 4 (Rx)</span></div>
+      <div class="kv"><span class="k">South Node</span><span class="v">Leo · House 10</span></div>
+      <div class="kv"><span class="k">Chiron</span><span class="v">Aquarius 26° · House 4 (Rx)</span></div>
+      <div class="kv"><span class="k">Chart Ruler</span><span class="v">Venus</span></div>
+    </div>
+
+    <div class="card">
+      <h3>House Cusps</h3>
+      <div class="kv"><span class="k">1st</span><span class="v">Libra</span></div>
+      <div class="kv"><span class="k">2nd</span><span class="v">Scorpio</span></div>
+      <div class="kv"><span class="k">3rd</span><span class="v">Sagittarius</span></div>
+      <div class="kv"><span class="k">4th</span><span class="v">Aquarius</span></div>
+      <div class="kv"><span class="k">5th</span><span class="v">Pisces</span></div>
+      <div class="kv"><span class="k">6th</span><span class="v">Aries</span></div>
+      <div class="kv"><span class="k">7th</span><span class="v">Aries</span></div>
+      <div class="kv"><span class="k">8th</span><span class="v">Taurus</span></div>
+      <div class="kv"><span class="k">9th</span><span class="v">Gemini</span></div>
+      <div class="kv"><span class="k">10th</span><span class="v">Leo</span></div>
+      <div class="kv"><span class="k">11th</span><span class="v">Virgo</span></div>
+      <div class="kv"><span class="k">12th</span><span class="v">Libra</span></div>
+      <div class="note-box">
+        Notable aspects: Venus opposition Ascendant 0° · Mars trine Pluto 0° · Sun square Saturn 0° · Jupiter conjunction Neptune 0° · Neptune conjunction Chiron 0° · Jupiter conjunction Chiron 0° · Jupiter trine Ascendant 1° · Mercury sextile Uranus 2°.<br><br>
+        T-Square: MC 0 Leo · Mars 2 Taurus · North Node 2 Aquarius.<br>
+        Second T-Square: Ascendant 28 Libra · MC 0 Leo · Mars 2 Taurus · Venus 28 Aries.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Human Design Chart</h3>
+      <div class="kv"><span class="k">Type</span><span class="v">Manifesting Generator</span></div>
+      <div class="kv"><span class="k">Strategy</span><span class="v">Wait to Respond, then Inform</span></div>
+      <div class="kv"><span class="k">Authority</span><span class="v">Emotional (Solar Plexus)</span></div>
+      <div class="kv"><span class="k">Profile</span><span class="v">4/6</span></div>
+      <div class="kv"><span class="k">Definition</span><span class="v">Split Definition</span></div>
+      <div class="kv"><span class="k">Incarnation Cross</span><span class="v">Right Angle Cross of Consciousness 2 35/5 | 63/64</span></div>
+      <div class="kv"><span class="k">Defined Centers</span><span class="v">Head (Crown), Ajna, Throat, G Center (Identity), Sacral, Solar Plexus (Emotional), Root</span></div>
+      <div class="kv"><span class="k">Channels</span><span class="v">13-33 The Prodigal, 35-36 Transitoriness, 19-49 Synthesis, 3-60 Mutation, 47-64 Abstraction</span></div>
+      <div class="note-box">
+        <strong>Design (Unconscious) Gates:</strong> Sun 63.6 · Earth 64.6 · North Node 19.2 · South Node 33.2 · Moon 53.5 · Mercury 30.3 · Venus 51.1 · Mars 49.5 · Jupiter 13.1 · Saturn 47.2 · Uranus 22.6 · Neptune 30.1 · Pluto 10.6<br><br>
+        <strong>Personality (Conscious) Gates:</strong> Sun 35.4 · Earth 5.4 · North Node 60.6 · South Node 56.6 · Moon 44.5 · Mercury 23.6 · Venus 3.3 · Mars 27.2 · Jupiter 30.3 · Saturn 64.5 · Uranus 36.4 · Neptune 30.3 · Pluto 10.5<br><br>
+        <strong>PHS &amp; Variables:</strong> Cognition Touch · Determination Closed-Taste · Environment Internal-Markets · Variables PLLDRL · Sense Security · Motivation Hope · Transference Guilt · View/Perspective Possibility · Distraction Probability · Trajectory Theist
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Gene Keys Hologenetic Profile</h3>
+      <div class="kv"><span class="k">Activation Sequence</span><span class="v">Life's Work 35.4 · Evolution 5.4 · Radiance 63.6 · Purpose 64.6</span></div>
+      <div class="kv"><span class="k">Venus Sequence</span><span class="v">Attraction 53.5 · IQ 3.3 · EQ 27.2 · SQ 51.1</span></div>
+      <div class="kv"><span class="k">Pearl Sequence</span><span class="v">Vocation 49.5 · Culture 13.1 · Brand 35.4 · Pearl 30.3</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= STATS (MONTHLY / YEARLY ACCUMULATION) ================= -->
+<div class="panel" id="panel-stats">
+  <div class="profile-header">
+    <h2>Monthly &amp; Yearly Accumulation</h2>
+    <div class="birth">Every checklist item you log adds up here — by month, then totaled for the year.</div>
+  </div>
+
+  <div class="toolbar">
+    <label for="stats-year">Year</label>
+    <input type="number" id="stats-year" style="max-width:110px;">
+    <button class="secondary" onclick="exportChecklistData()">Export Data</button>
+    <button class="secondary" onclick="document.getElementById('stats-import-file').click()">Import Data</button>
+    <input type="file" id="stats-import-file" accept="application/json" style="display:none;">
+    <span class="copy-note" id="stats-import-note"></span>
+  </div>
+  <div class="note-box">
+    This tab reads from this browser's local storage only — it does not sync across browsers or devices. Click "Export Data" periodically (e.g. monthly) to save a backup file, and share it with Claude to record durable monthly/yearly totals in the markdown log. "Import Data" restores from a previously exported file. This only tracks Orlando's entries.
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--orlando)">Orlando — Yearly Totals</h3>
+    <div class="stats-scroll" id="orlando-stats-table-wrap"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ---------- Tabs ----------
+  var primaryButtons = document.querySelectorAll('.primary-tabs .tab-btn');
+  var subTabsBar = document.querySelector('.sub-tabs');
+  var subButtons = document.querySelectorAll('.sub-tabs .tab-btn');
+  var lastProfileTab = 'orlando-profile';
+
+  function showPanel(id){
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  function activateProfileTab(tabId){
+    lastProfileTab = tabId;
+    subButtons.forEach(function(b){ b.classList.remove('active'); });
+    document.querySelector('.sub-tabs .tab-btn[data-tab="' + tabId + '"]').classList.add('active');
+    showPanel(tabId);
+  }
+
+  primaryButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      primaryButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      if(btn.dataset.tab === 'profiles'){
+        subTabsBar.style.display = 'flex';
+        activateProfileTab(lastProfileTab);
+      } else {
+        subTabsBar.style.display = 'none';
+        showPanel(btn.dataset.tab);
+        if(btn.dataset.tab === 'stats' && typeof renderStats === 'function') renderStats();
+      }
+    });
+  });
+
+  subButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      activateProfileTab(btn.dataset.tab);
+    });
+  });
+
+  function todayStr(){
+    var d = new Date();
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    var day = String(d.getDate()).padStart(2,'0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  // ---------- Checklist field map ----------
+  var ORLANDO_FIELDS = [
+    'wake','bed','skool','hours-worked','ot-hours','business','house','bags',
+    'grass-cut','grass-sprayed','yard-extra',
+    'laundry-done','laundry-uniforms','vacuumed',
+    'credit-dishes','credit-cooking','credit-store','credit-kids','credit-other',
+    'food-tracked',
+    'pc-massage-gun','pc-pemf','pc-roller','pc-itovi',
+    'w-arms-done','w-arms-notes','w-chest-done','w-chest-notes','w-legs-done','w-legs-notes',
+    'tv-minutes','tv-watched'
+  ];
+
+  function storageKey(person, date){ return 'checklist-' + person + '-' + date; }
+
+  function fieldEl(person, field){ return document.getElementById(person + '-' + field); }
+
+  function saveChecklist(person, fields){
+    var date = document.getElementById(person + '-date').value;
+    if(!date) return;
+    var data = {};
+    fields.forEach(function(f){
+      var el = fieldEl(person, f);
+      if(!el) return;
+      data[f] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    localStorage.setItem(storageKey(person, date), JSON.stringify(data));
+    var note = document.getElementById(person + '-save-note');
+    if(note){
+      note.classList.add('show');
+      clearTimeout(note._t);
+      note._t = setTimeout(function(){ note.classList.remove('show'); }, 900);
+    }
+    if(typeof renderStats === 'function') renderStats();
+  }
+
+  function loadChecklist(person, fields){
+    var date = document.getElementById(person + '-date').value;
+    var raw = date ? localStorage.getItem(storageKey(person, date)) : null;
+    var data = raw ? JSON.parse(raw) : {};
+    fields.forEach(function(f){
+      var el = fieldEl(person, f);
+      if(!el) return;
+      if(el.type === 'checkbox') el.checked = !!data[f];
+      else el.value = data[f] || '';
+    });
+  }
+
+  function wireChecklist(person, fields){
+    var dateInput = document.getElementById(person + '-date');
+    dateInput.value = todayStr();
+    fields.forEach(function(f){
+      var el = fieldEl(person, f);
+      if(!el) return;
+      var evt = (el.tagName === 'TEXTAREA' || el.type === 'text' || el.type === 'number' || el.type === 'time') ? 'input' : 'change';
+      el.addEventListener(evt, function(){ saveChecklist(person, fields); });
+    });
+    dateInput.addEventListener('change', function(){ loadChecklist(person, fields); });
+    loadChecklist(person, fields);
+  }
+
+  wireChecklist('orlando', ORLANDO_FIELDS);
+
+  // ---------- Orlando "give yourself credit" live counter ----------
+  var CREDIT_IDS = ['orlando-credit-dishes','orlando-credit-cooking','orlando-credit-store','orlando-credit-kids'];
+  var creditOtherInput = document.getElementById('orlando-credit-other');
+  var creditCountBox = document.getElementById('orlando-credit-count');
+
+  function updateCreditCount(){
+    var count = CREDIT_IDS.reduce(function(total, id){
+      return total + (document.getElementById(id).checked ? 1 : 0);
+    }, 0);
+    if(creditOtherInput.value.trim()) count += 1;
+    if(count === 0){
+      creditCountBox.textContent = "You haven't logged anything yet today — but you probably did more than you think.";
+    } else {
+      creditCountBox.textContent = count + (count === 1 ? ' thing' : ' things') + ' you handled around the house today. That adds up — nice work.';
+    }
+  }
+
+  CREDIT_IDS.forEach(function(id){
+    document.getElementById(id).addEventListener('change', updateCreditCount);
+  });
+  creditOtherInput.addEventListener('input', updateCreditCount);
+  document.getElementById('orlando-date').addEventListener('change', updateCreditCount);
+  updateCreditCount();
+
+  // ---------- Prompt generation ----------
+  function hasVal(v){ return v !== undefined && v !== null && String(v).trim().length > 0; }
+  function numOrZero(v){ return (v === '' || v === null || v === undefined) ? '0' : v; }
+  function numVal(v){ return parseFloat(v) || 0; }
+
+  window.generatePrompt = function(person){
+    var date = document.getElementById(person + '-date').value || todayStr();
+    var out = document.getElementById(person + '-output');
+    var g = function(id){ return document.getElementById('orlando-' + id); };
+    var lines2 = [];
+    lines2.push('Daily Check-In — Orlando — ' + date);
+    lines2.push('');
+    if(hasVal(g('wake').value)) lines2.push('Woke up: ' + g('wake').value);
+    if(hasVal(g('bed').value)) lines2.push('Bed at: ' + g('bed').value);
+    if(hasVal(g('skool').value)) lines2.push('Skool actions: ' + g('skool').value.trim());
+    if(numVal(g('hours-worked').value) > 0 || numVal(g('ot-hours').value) > 0){
+      lines2.push('Hours worked: ' + numOrZero(g('hours-worked').value) + (numVal(g('ot-hours').value) > 0 ? ' (OT: ' + g('ot-hours').value + ')' : ''));
+    }
+    if(hasVal(g('business').value)) lines2.push('Worked on the business: ' + g('business').value.trim());
+    if(hasVal(g('house').value)) lines2.push('Worked on the house: ' + g('house').value.trim());
+    lines2.push('Picked up dog waste: ' + numOrZero(g('bags').value) + ' bags');
+    lines2.push('Grass cut: ' + (g('grass-cut').checked ? 'Yes' : 'No'));
+    lines2.push('Grass sprayed with bioenzymes: ' + (g('grass-sprayed').checked ? 'Yes' : 'No'));
+    if(hasVal(g('yard-extra').value)) lines2.push('Additional house/lawn maintenance: ' + g('yard-extra').value.trim());
+    lines2.push('Laundry: ' + (g('laundry-done').checked ? 'Yes' : 'No') + ' · Uniforms washed: ' + (g('laundry-uniforms').checked ? 'Yes' : 'No'));
+    lines2.push('Vacuumed: ' + (g('vacuumed').checked ? 'Yes' : 'No'));
+    var orlandoCredit = [
+      [g('credit-dishes').checked, 'Dishes'],
+      [g('credit-cooking').checked, 'Cooking'],
+      [g('credit-store').checked, 'Running to the store'],
+      [g('credit-kids').checked, 'Took/picked up a child']
+    ].filter(function(item){ return item[0]; }).map(function(item){ return item[1]; });
+    if(g('credit-other').value.trim()) orlandoCredit.push(g('credit-other').value.trim());
+    lines2.push('Around the house today: ' + (orlandoCredit.length ? orlandoCredit.join(', ') : 'Nothing logged'));
+    lines2.push('Tracked food on app: ' + (g('food-tracked').checked ? 'Yes' : 'No'));
+    var orlandoPersonalCare = [
+      [g('pc-massage-gun').checked, 'Massage gun'],
+      [g('pc-pemf').checked, 'PEMF'],
+      [g('pc-roller').checked, 'Muscle roller'],
+      [g('pc-itovi').checked, 'Itovi scan']
+    ].filter(function(item){ return item[0]; }).map(function(item){ return item[1]; });
+    lines2.push('Personal care: ' + (orlandoPersonalCare.length ? orlandoPersonalCare.join(', ') : 'None logged'));
+    lines2.push('Workouts:');
+    lines2.push('  - Arms & Core: ' + (g('w-arms-done').checked ? 'Yes' : 'No') + (g('w-arms-notes').value ? ' — ' + g('w-arms-notes').value : ''));
+    lines2.push('  - Chest, Back, Shoulders: ' + (g('w-chest-done').checked ? 'Yes' : 'No') + (g('w-chest-notes').value ? ' — ' + g('w-chest-notes').value : ''));
+    lines2.push('  - Legs: ' + (g('w-legs-done').checked ? 'Yes' : 'No') + (g('w-legs-notes').value ? ' — ' + g('w-legs-notes').value : ''));
+    if(numVal(g('tv-minutes').value) > 0 || hasVal(g('tv-watched').value)){
+      lines2.push('TV time: ' + numOrZero(g('tv-minutes').value) + ' min' + (hasVal(g('tv-watched').value) ? ' — ' + g('tv-watched').value.trim() : ''));
+    }
+    lines2.push('');
+    lines2.push("Post this as Orlando's update in today's daily check-in thread.");
+    out.value = lines2.join('\n');
+  };
+
+  window.copyOutput = function(person){
+    var out = document.getElementById(person + '-output');
+    if(!out.value){ generatePrompt(person); }
+    out.select();
+    var done = function(){
+      var note = document.getElementById(person + '-copy-note');
+      note.classList.add('show');
+      setTimeout(function(){ note.classList.remove('show'); }, 1200);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(out.value).then(done).catch(function(){ document.execCommand('copy'); done(); });
+    } else {
+      document.execCommand('copy');
+      done();
+    }
+  };
+
+  // ---------- Monthly / Yearly accumulation stats ----------
+  var ORLANDO_METRICS = [
+    {key:'hours-worked', label:'Hours worked', type:'sum'},
+    {key:'ot-hours', label:'OT hours worked', type:'sum'},
+    {key:'bags', label:'Bags picked up', type:'sum'},
+    {key:'grass-cut', label:'Grass cut', type:'count'},
+    {key:'grass-sprayed', label:'Grass sprayed (bioenzymes)', type:'count'},
+    {key:'laundry-done', label:'Laundry days', type:'count'},
+    {key:'laundry-uniforms', label:'Uniforms washed', type:'count'},
+    {key:'vacuumed', label:'Vacuumed', type:'count'},
+    {key:'credit-dishes', label:'Dishes', type:'count'},
+    {key:'credit-cooking', label:'Cooking', type:'count'},
+    {key:'credit-store', label:'Store runs', type:'count'},
+    {key:'credit-kids', label:'Took/picked up kids', type:'count'},
+    {key:'food-tracked', label:'Food tracked days', type:'count'},
+    {key:'pc-massage-gun', label:'Massage gun', type:'count'},
+    {key:'pc-pemf', label:'PEMF', type:'count'},
+    {key:'pc-roller', label:'Muscle roller', type:'count'},
+    {key:'pc-itovi', label:'Itovi scan', type:'count'},
+    {key:'w-arms-done', label:'Arms & Core workouts', type:'count'},
+    {key:'w-chest-done', label:'Chest/Back/Shoulders workouts', type:'count'},
+    {key:'w-legs-done', label:'Leg workouts', type:'count'},
+    {key:'tv-minutes', label:'TV time (min)', type:'sum'}
+  ];
+
+  var MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Tracking began in July 2026 — earlier months of that year never had data, so hide them instead of showing empty columns.
+  var STATS_TRACKING_START_YEAR = 2026;
+  var STATS_TRACKING_START_MONTH = 6; // 0-indexed: 6 = July
+
+  function getPersonDayEntries(person){
+    var prefix = 'checklist-' + person + '-';
+    var entries = [];
+    for(var i = 0; i < localStorage.length; i++){
+      var key = localStorage.key(i);
+      if(key && key.indexOf(prefix) === 0){
+        var date = key.slice(prefix.length);
+        var data = null;
+        try{ data = JSON.parse(localStorage.getItem(key)); }catch(e){ data = null; }
+        if(data) entries.push({ date: date, data: data });
+      }
+    }
+    return entries;
+  }
+
+  function fmtStat(v){
+    if(!v) return '–';
+    var rounded = Math.round(v * 10) / 10;
+    return String(rounded);
+  }
+
+  function buildStatsTable(person, metrics, year){
+    var startMonth = (year === STATS_TRACKING_START_YEAR) ? STATS_TRACKING_START_MONTH : 0;
+    var entries = getPersonDayEntries(person);
+    var months = [];
+    for(var m = 0; m < 12; m++){
+      var bucket = {};
+      metrics.forEach(function(metric){ bucket[metric.key] = 0; });
+      months.push(bucket);
+    }
+    entries.forEach(function(entry){
+      var parts = entry.date.split('-');
+      var y = parseInt(parts[0], 10);
+      var mo = parseInt(parts[1], 10) - 1;
+      if(y !== year || mo < startMonth || mo > 11) return;
+      metrics.forEach(function(metric){
+        var val = entry.data[metric.key];
+        if(metric.type === 'sum'){
+          months[mo][metric.key] += (parseFloat(val) || 0);
+        } else if(metric.type === 'count'){
+          if(val === true) months[mo][metric.key] += 1;
+        } else if(metric.type === 'countNonEmpty'){
+          if(val && String(val).trim().length) months[mo][metric.key] += 1;
+        }
+      });
+    });
+
+    var html = '<table class="stats-table"><thead><tr><th class="stats-label">Metric</th>';
+    for(var lm = startMonth; lm < 12; lm++){ html += '<th>' + MONTH_LABELS[lm] + '</th>'; }
+    html += '<th>Year Total</th></tr></thead><tbody>';
+    metrics.forEach(function(metric){
+      var total = 0;
+      html += '<tr><td class="stats-label">' + metric.label + '</td>';
+      for(var m = startMonth; m < 12; m++){
+        var v = months[m][metric.key];
+        total += v;
+        html += '<td>' + fmtStat(v) + '</td>';
+      }
+      html += '<td class="stats-total">' + fmtStat(total) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById(person + '-stats-table-wrap').innerHTML = html;
+  }
+
+  function renderStats(){
+    var yearInput = document.getElementById('stats-year');
+    var year = parseInt(yearInput.value, 10);
+    if(!year){ year = new Date().getFullYear(); yearInput.value = year; }
+    buildStatsTable('orlando', ORLANDO_METRICS, year);
+  }
+
+  document.getElementById('stats-year').value = new Date().getFullYear();
+  document.getElementById('stats-year').addEventListener('change', renderStats);
+  renderStats();
+
+  // ---------- Backup / restore (export & import localStorage, this person only) ----------
+  function collectChecklistData(){
+    var data = {};
+    var prefix = 'checklist-orlando-';
+    for(var i = 0; i < localStorage.length; i++){
+      var key = localStorage.key(i);
+      if(key && key.indexOf(prefix) === 0){
+        data[key] = localStorage.getItem(key);
+      }
+    }
+    return data;
+  }
+
+  function showImportNote(text){
+    var note = document.getElementById('stats-import-note');
+    if(!note) return;
+    note.textContent = text;
+    note.classList.add('show');
+    clearTimeout(note._t);
+    note._t = setTimeout(function(){ note.classList.remove('show'); }, 2500);
+  }
+
+  window.exportChecklistData = function(){
+    var data = collectChecklistData();
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'orlando-checklist-backup-' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showImportNote('Exported.');
+  };
+
+  window.importChecklistData = function(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        var count = 0;
+        var prefix = 'checklist-orlando-';
+        Object.keys(data).forEach(function(key){
+          if(key.indexOf(prefix) === 0){
+            localStorage.setItem(key, data[key]);
+            count++;
+          }
+        });
+        loadChecklist('orlando', ORLANDO_FIELDS);
+        updateCreditCount();
+        renderStats();
+        showImportNote('Imported ' + count + ' day(s).');
+      }catch(e){
+        showImportNote('Import failed — not a valid backup file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  document.getElementById('stats-import-file').addEventListener('change', function(e){
+    if(e.target.files && e.target.files[0]) importChecklistData(e.target.files[0]);
+    e.target.value = '';
+  });
+
+})();
+</script>
+
+</body>
+</html>
